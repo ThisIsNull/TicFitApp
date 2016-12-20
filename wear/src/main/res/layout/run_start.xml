@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/fragment_container">
+<View
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/run_start_view"/>
+
+    <android.support.wearable.view.GridViewPager
+        android:id="@+id/run_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <!--<fragment
+        android:name="com.hack3r77.ticfit.Fragments.RunStartFragmentnt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_run_start" />
+
+    <fragment
+        android:name="com.hack3r77.ticfit.Fragments.RunInfoFragmentnt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_run_info" />-->
+
+    <!--<Button
+        android:text="Start"
+        android:layout_height="wrap_content"
+        android:id="@+id/run_start_button"
+        android:layout_marginBottom="40dp"
+        android:layout_width="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:text="Loading..."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:id="@+id/textInfo"
+        android:layout_above="@+id/run_start_button"
+        android:layout_centerHorizontal="true" />-->
+
+
+    <!-- <ImageView
+         android:src="@drawable/accept_deny_dialog_negative_bg"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:id="@+id/heart_indicator"
+         android:layout_marginBottom="21dp"
+         android:layout_above="@+id/run_start_button"
+         android:layout_alignEnd="@+id/run_start_button" />
+
+     <ImageView
+         android:src="@drawable/accept_deny_dialog_positive_bg"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:id="@+id/gps_indicator"
+         android:layout_alignTop="@+id/heart_indicator"
+         android:layout_alignStart="@+id/run_start_button" />-->
+
+</RelativeLayout>

@@ -1,0 +1,31 @@
+apply plugin: 'com.android.application'
+//apply plugin: 'com.ticwear.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.3"
+    defaultConfig {
+        applicationId "com.hack3r77.ticfit"
+        minSdkVersion 20
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.google.android.support:wearable:2.0.0-alpha3'
+    compile 'com.google.android.gms:play-services-wearable:9.8.0'
+    compile files('C:/Users/LucP77/AndroidStudioProjects/app1/tic_library/mobvoi-api.jar')
+    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
+    //compile files('C:/Users/LucP77/AndroidStudioProjects/app1/tic_library/mobvoi-api-gms-replaceable.jar')
+    //compile 'com.google.android.gms:play-services-location:9.6.1'
+}
