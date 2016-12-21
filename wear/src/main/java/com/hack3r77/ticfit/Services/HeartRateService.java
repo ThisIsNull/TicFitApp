@@ -31,6 +31,9 @@ public class HeartRateService extends Service implements SensorEventListener{
 
     private boolean started;
     boolean logDebug = false;
+    
+    private int[] heartRateZones;
+    private int currentHRzone;
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -80,6 +83,7 @@ public class HeartRateService extends Service implements SensorEventListener{
             Log.d(TAG, "onStartCommand");
         }
         super.onStartCommand(intent, flags, startId);
+
         //TODO: test different delays
         mSensorManager.registerListener(this, mHeartRate, SensorManager.SENSOR_DELAY_NORMAL);
 
@@ -110,6 +114,8 @@ public class HeartRateService extends Service implements SensorEventListener{
         heartReady = false;
         started = false;
         countReady = 0;
+        currentHRzone = 0;
+        heartRateZones = new int[]{104, 144, 133, 152, 172, 190};
     }
 
     public void setStart(boolean value){
@@ -117,6 +123,13 @@ public class HeartRateService extends Service implements SensorEventListener{
             Log.d(TAG,"setStart: " + String.valueOf(value));
         }
         started = value;
+    }
+
+    private void setHeartRateZone( int heartRate ){
+
+        //if in between zone bounds ..... set zone
+
+        //currentHRzone = ?;
     }
 
     private void sendMessageToActivity(String key, String msg) {

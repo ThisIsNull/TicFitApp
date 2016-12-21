@@ -27,6 +27,7 @@ import com.mobvoi.android.location.LocationServices;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class LocationService extends Service implements
         ConnectionCallbacks,
@@ -198,7 +199,7 @@ public class LocationService extends Service implements
              //   LocationServices.FusedLocationApi.requestLocationUpdates(mApiClient, locationRequest, this);
             }
 
-            float gpsAccuracy = location.getAccuracy();; //Get the estimated accuracy of this location, in meters.
+            float gpsAccuracy = location.getAccuracy(); //Get the estimated accuracy of this location, in meters.
             Log.d(TAG, "accuracy: " + gpsAccuracy);
 
             if((location.getLatitude() != zero) && (location.getLongitude() != zero)){
@@ -245,12 +246,17 @@ public class LocationService extends Service implements
     {
         //TODO pass in time and distance and get pace, float or long?
         //TODO broadcast or use listener to send pace to main activity and write to text view
-        long pace = (long) zero;;
+        long pace = (long) zero;
         if(currentDistance == (float)zero){
             pace = (long) zero;
         }else{
-            long timeDiffMillis = (long)(time.getTime() - startTime.getTime()); //in milliseconds
-            //long timeDiffMin =
+            long timeDiffMillis = time.getTime() - startTime.getTime(); //in milliseconds
+            // 1000 millis / 1 sec
+            // 60000 millis / 1 min
+            long timeDiffMin = (timeDiffMillis / 1000)  / 60;
+            int seconds = ((int)timeDiffMillis / 1000) % 60;
+
+
             long distanceTemp = (long)(currentDistance / 1000); //current distance (m) / [1000(m)/1(km)] = km
 
             /*
