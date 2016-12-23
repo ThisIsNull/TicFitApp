@@ -1,16 +1,31 @@
 # README #
 
-  STAND BY, WORKING ON GETTING STUFF TOGETHER
-
-This README would normally document whatever steps are necessary to get your application up and running.
-
 ### What is this repository for? ###
+
+TicFit is a run tracking app for the Ticwatch2 made by Mobvoi
 
 * Quick summary
 * Version
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
+
+* Install [Android Studio](https://developer.android.com/studio/index.html)
+* Clone Repository
+<p>
+
+    HTTPS
+    ```
+    git clone https://github.com/ThisIsNull/TicFitApp.git
+    ```
+  
+    SSH
+    ```
+    git clone git@github.com:ThisIsNull/TicFitApp.git
+    ```
+    
+</p>
+
 
 * Summary of set up
 * Configuration
@@ -24,6 +39,12 @@ This README would normally document whatever steps are necessary to get your app
 * Writing tests
 * Code review
 * Other guidelines
+
+### Helpful Links ###
+
+* GIT Guide: http://rogerdudler.github.io/git-guide/
+* Ticwear API: http://developer.chumenwenwen.com/en/doc/ticwear.html
+* Android Guide & API: https://developer.android.com/index.html
 
 ### Who do I talk to? ###
 
