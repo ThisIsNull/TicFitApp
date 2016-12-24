@@ -2,30 +2,24 @@
 
 ### What is this repository for? ###
 
-TicFit is a run tracking app for the Ticwatch2 made by Mobvoi
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+TicFit is a run tracking app for the Mobvoi Ticwatch2
 
 ### How do I get set up? ###
 
-* Install [Android Studio](https://developer.android.com/studio/index.html)
-* Clone Repository
-<p>
-
-    HTTPS
+1. Install [Android Studio](https://developer.android.com/studio/index.html)
+2. Clone Repository
+    * HTTPS
     ```
     git clone https://github.com/ThisIsNull/TicFitApp.git
     ```
   
-    SSH
+   * SSH
     ```
     git clone git@github.com:ThisIsNull/TicFitApp.git
     ```
     
-</p>
-
+3. Import project to Android Studio
+4. Ensure you can build the project
 
 * Summary of set up
 * Configuration
@@ -36,17 +30,24 @@ TicFit is a run tracking app for the Ticwatch2 made by Mobvoi
 
 ### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
+1. Create or select an [issue](https://waffle.io/ThisIsNull/TicFitApp)
+2. Do some awesome coding
+3. Comment the code
+4. Pull latest code from repo
+5. Test and log results
+6. Commit code and update the [issue](https://waffle.io/ThisIsNull/TicFitApp)
+7. Code must be reviewed and approved by peer
 
-### Helpful Links ###
+### Other Links ###
 
-* GIT Guide: http://rogerdudler.github.io/git-guide/
-* Ticwear API: http://developer.chumenwenwen.com/en/doc/ticwear.html
-* Android Guide & API: https://developer.android.com/index.html
+* [GIT Guide](http://rogerdudler.github.io/git-guide/)
+* [Android Guide & API](https://developer.android.com/index.html)
+* [Ticwear API](http://developer.chumenwenwen.com/en/doc/ticwear.html)
+* [Ticwear Forum](http://forum.ticwear.com/viewtopic.php?f=21&t=155&sid=0d780c77de83e40d0bd2060b8c0bf0e8)
+* [Issue Tracker](https://waffle.io/ThisIsNull/TicFitApp)
 
 ### Who do I talk to? ###
 
+* [TicFit Gitter](https://gitter.im/TicFitApp/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
 * Repo owner or admin
 * Other community or team contact
