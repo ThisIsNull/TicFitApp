@@ -22,6 +22,7 @@ public class HeartRateService extends Service implements SensorEventListener{
     private Sensor mHeartRate;
 
     private final String TAG = "Sensors";
+    private final int HeartRateConstant = 220;
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -31,8 +32,9 @@ public class HeartRateService extends Service implements SensorEventListener{
 
     private boolean started;
     boolean logDebug = false;
-    
-    private int[] heartRateZones;
+
+    private int[] hrZoneBounds;
+
     private int currentHRzone;
 
     /**
@@ -54,7 +56,9 @@ public class HeartRateService extends Service implements SensorEventListener{
                     String.valueOf(event.values[0]));
         }
         if(started && heartReady){
+            setHeartRateZone((int)event.values[0]);
             sendMessageToActivity("heartRate", String.valueOf(event.values[0]));
+            //TODO: if heart rate zone changed, then send to activity
         }else{
             countReady++;
             if(countReady > 10){
@@ -115,7 +119,9 @@ public class HeartRateService extends Service implements SensorEventListener{
         started = false;
         countReady = 0;
         currentHRzone = 0;
-        heartRateZones = new int[]{104, 144, 133, 152, 172, 190};
+        //TODO: custom heart rate zones based on age https://www.polar.com/en/running/calculate-maximum-heart-rate-running
+        //hrZoneBounds = new int[6];
+        setHeartRateZoneBounds(22); //TODO user age input
     }
 
     public void setStart(boolean value){
@@ -125,16 +131,48 @@ public class HeartRateService extends Service implements SensorEventListener{
         started = value;
     }
 
+    private void setHeartRateZoneBounds(int age){
+        int maxHeartRateEstimate = HeartRateConstant - age;
+        hrZoneBounds = new int[6]; //{104, 144, 133, 152, 172, 190};
+        hrZoneBounds[0] = (int)(maxHeartRateEstimate * 0.50);
+        hrZoneBounds[1] = (int)(maxHeartRateEstimate * 0.60);
+        hrZoneBounds[2] = (int)(maxHeartRateEstimate * 0.70);
+        hrZoneBounds[3] = (int)(maxHeartRateEstimate * 0.80);
+        hrZoneBounds[4] = (int)(maxHeartRateEstimate * 0.90);
+        hrZoneBounds[5] = maxHeartRateEstimate;
+    }
+
     private void setHeartRateZone( int heartRate ){
 
-        //if in between zone bounds ..... set zone
+        /*Zone 5 (90-100% of maximum)
+        Zone 4 (80-90% of maximum)
+        Zone 3 (70-80% of maximum)
+        Zone 2 (60-70% of maximum)
+        Zone 1 (50-60% of maximum)*/
 
-        //currentHRzone = ?;
+        //if in between zone bounds, set zone
+        if(heartRate < hrZoneBounds[0]){
+            currentHRzone = 0;
+        }else if(hrZoneBounds[0] <= heartRate && heartRate < hrZoneBounds[1]){
+            currentHRzone = 1;
+        }else if(hrZoneBounds[1] <= heartRate && heartRate < hrZoneBounds[2]){
+            currentHRzone = 2;
+        }else if(hrZoneBounds[2] <= heartRate && heartRate < hrZoneBounds[3]){
+            currentHRzone = 3;
+        }else if(hrZoneBounds[3] <= heartRate && heartRate < hrZoneBounds[4]){
+            currentHRzone = 4;
+        }else if(hrZoneBounds[4] <= heartRate && heartRate < hrZoneBounds[5]){
+            currentHRzone = 5;
+        }else if(hrZoneBounds[5] <= heartRate){
+            currentHRzone = 6; //HRzone 6 is not really a zone, just an extra zone for above 190 bpm
+        }else{
+            //nothing
+        }
+
     }
 
     private void sendMessageToActivity(String key, String msg) {
         Intent intent = new Intent("run_activity");
-        // You can also include some extra data.
         intent.putExtra(key, msg);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
