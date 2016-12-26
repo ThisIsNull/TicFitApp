@@ -28,6 +28,25 @@ TicFit is a run tracking app for the Mobvoi Ticwatch2
 * How to run tests
 * Deployment instructions
 
+### Using The App ###
+
+<table>
+  <tr>
+    <th>1. Click "Run (Outside)"</th>
+    <th>2. This is the loading screen, wait until ready</th>
+    <th>3. GPS and HR services are ready, click "Start"</th>
+    <th>4. View information about activity</th>
+    <th>5. Swipe right --> and click "Stop"</th>
+  </tr>
+  <tr>
+    <td> <img src="images/menu.jpg"/>  </td>
+    <td> <img src="images/start_loading.jpg"/>  </td>
+    <td> <img src="images/start_ready.jpg"/> </td>
+    <td> <img src="images/info.jpg"/>  </td>
+    <td> <img src="images/stop.jpg"/>  </td>
+  </tr>
+</table>
+
 ### Contribution guidelines ###
 
 1. Create or select an [issue](https://waffle.io/ThisIsNull/TicFitApp)
