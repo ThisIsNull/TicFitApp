@@ -47,6 +47,19 @@ TicFit is a run tracking app for the Mobvoi Ticwatch2
   </tr>
 </table>
 
+### GPX files ###
+1. Retrieve GPX files from watch
+
+ ```
+ adb pull /sdcard/GPX <path/to/local/directory>
+ ```
+ 
+2. Remove GPX folder and fiels from watch
+
+ ```
+ adb shell rm -r /sdcard/GPX
+ ```
+
 ### Contribution guidelines ###
 
 1. Create or select an [issue](https://waffle.io/ThisIsNull/TicFitApp)
