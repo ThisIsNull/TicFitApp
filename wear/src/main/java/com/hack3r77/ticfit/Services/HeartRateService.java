@@ -36,6 +36,7 @@ public class HeartRateService extends Service implements SensorEventListener{
     private int[] hrZoneBounds;
 
     private int currentHRzone;
+    private int previousHRzone;
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -56,9 +57,13 @@ public class HeartRateService extends Service implements SensorEventListener{
                     String.valueOf(event.values[0]));
         }
         if(started && heartReady){
+            previousHRzone = currentHRzone;
             setHeartRateZone((int)event.values[0]);
             sendMessageToActivity("heartRate", String.valueOf(event.values[0]));
             //TODO: if heart rate zone changed, then send to activity
+            if(previousHRzone != currentHRzone){
+                sendMessageToActivity("heartRateZone", String.valueOf(currentHRzone));
+            }
         }else{
             countReady++;
             if(countReady > 10){
@@ -119,7 +124,9 @@ public class HeartRateService extends Service implements SensorEventListener{
         started = false;
         countReady = 0;
         currentHRzone = 0;
+        previousHRzone = 0;
         //TODO: custom heart rate zones based on age https://www.polar.com/en/running/calculate-maximum-heart-rate-running
+        //https://www.polar.com/en/running/running-heart-rate-zones-basics
         //hrZoneBounds = new int[6];
         setHeartRateZoneBounds(22); //TODO user age input
     }
@@ -166,11 +173,16 @@ public class HeartRateService extends Service implements SensorEventListener{
         }else if(hrZoneBounds[5] <= heartRate){
             currentHRzone = 6; //HRzone 6 is not really a zone, just an extra zone for above 190 bpm
         }else{
-            //nothing
+            //error?
         }
 
     }
 
+    /**
+     *
+     * @param key
+     * @param msg
+     */
     private void sendMessageToActivity(String key, String msg) {
         Intent intent = new Intent("run_activity");
         intent.putExtra(key, msg);

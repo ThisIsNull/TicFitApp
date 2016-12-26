@@ -19,7 +19,7 @@ import com.hack3r77.ticfit.Adapters.ListAdapter;
 public class MainMenuActivity extends Activity implements WearableListView.ClickListener {
 
     private static final String TAG = "MainMenuActivity";
-    private final String[] mElements = {"Location GPS", "Run Activity", "Sensor", "test3"};
+    private final String[] mElements = {"Run (Outside)", "test2", "test3", "test4"};
 
     /**
      *

@@ -5,7 +5,6 @@ package com.hack3r77.ticfit.Services;
  */
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
@@ -16,6 +15,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.hack3r77.ticfit.DistanceTimeObject;
 import com.hack3r77.ticfit.GPXfileOutput;
 import com.mobvoi.android.common.ConnectionResult;
 import com.mobvoi.android.common.api.MobvoiApiClient;
@@ -25,9 +25,9 @@ import com.mobvoi.android.location.LocationListener;
 import com.mobvoi.android.location.LocationRequest;
 import com.mobvoi.android.location.LocationServices;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class LocationService extends Service implements
         ConnectionCallbacks,
@@ -35,45 +35,41 @@ public class LocationService extends Service implements
         LocationListener {
 
     private static final String TAG = "LocationService";
-    private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000;
     private static final float LOCATION_DISTANCE = 0;
-
-    LocationListener mLocationListener;
-    public MobvoiApiClient mApiClient;
+    private final double ZERO = 0.0;
+    //private LocationManager mLocationManager = null;
+    //LocationListener mLocationListener;
+    private MobvoiApiClient mApiClient;
 
     private TextView mTextView;
 
-    public LocationManager locationManager;
+    private LocationManager locationManager;
+    private Location lastLocation;
+    private Location currentLocation;
+    private LocationRequest locationRequest;
 
-    public Location lastLocation;
-    public Location currentLocation;
-
-    public boolean needFirstLocation;
+    private boolean needFirstLocation;
     private boolean started;
     private boolean gpsReady;
-    private int counter;
-    private final double zero = 0.0;
+    private boolean isPaceArrayFull;
 
+    private int counter;
     public float distance;
 
     private GPXfileOutput gpxOutput;
-
-    LocationRequest locationRequest;
 
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
 
     private Date startTime;
 
-    public void closeGPX() {
-        gpxOutput.closeGPX();
-    }
+    private DistanceTimeObject[] instantPaceArray;
 
+    SimpleDateFormat paceFormat;
 
     /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
+     *
      */
     public class LocalBinder extends Binder {
         public LocationService getService() {
@@ -97,31 +93,50 @@ public class LocationService extends Service implements
                 .build();
 
         counter = 0;
-        distance = (float) zero;
+        distance = (float) ZERO;
 
         started = false;
         gpsReady = false;
         needFirstLocation = true;
+        isPaceArrayFull = false;
 
         String dummyprovider = "dummyprovider";
 
         locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
         lastLocation = new Location(dummyprovider);
-        lastLocation.setLatitude(zero);
-        lastLocation.setLongitude(zero);
+        lastLocation.setLatitude(ZERO);
+        lastLocation.setLongitude(ZERO);
 
         currentLocation = new Location(dummyprovider);
-        currentLocation.setLatitude(zero);
-        currentLocation.setLongitude(zero);
+        currentLocation.setLatitude(ZERO);
+        currentLocation.setLongitude(ZERO);
 
         String gpsprovider = LocationManager.GPS_PROVIDER;
         Log.d(TAG, "provider: " + gpsprovider);
         boolean gpson = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         Log.d(TAG, "gps on: " + gpson);
 
+        //keep record of last 5 times and distances fro calculating instant pace
+        instantPaceArray = new DistanceTimeObject[5];
+        paceFormat = new SimpleDateFormat("mm:ss");
+
+        //mApiClient.connect();
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        super.onStartCommand(intent, flags, startId);
+
         mApiClient.connect();
 
+        return START_STICKY;
+    }
+
+    public void closeGPX() {
+        gpxOutput.closeGPX();
     }
 
     @Override
@@ -129,15 +144,18 @@ public class LocationService extends Service implements
         Log.d(TAG, "onDestroy");
         super.onDestroy();
         LocationServices.FusedLocationApi.removeLocationUpdates(mApiClient,this);
+        mApiClient.unregisterConnectionFailedListener(this);
+        mApiClient.unregisterConnectionCallbacks(this);
         mApiClient.disconnect();
+
     }
 
-    private void initializeLocationManager() {
+    /*private void initializeLocationManager() {
         Log.d(TAG, "initializeLocationManager");
         if (mLocationManager == null) {
             mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         }
-    }
+    }*/
 
     @Override
     public void onConnected(Bundle connectionHint) {
@@ -161,9 +179,9 @@ public class LocationService extends Service implements
         Log.d(TAG,locationRequest.toString());
         LocationServices.FusedLocationApi.requestLocationUpdates(mApiClient, locationRequest, this);
 
-        Location location = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
+        /*Location location = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
         Log.d(TAG," LAST location   Latitude:  " + String.valueOf(location.getLatitude()) +
-                "  Longitude:  " + String.valueOf(location.getLongitude()));
+                "  Longitude:  " + String.valueOf(location.getLongitude()));*/
     }
 
     public void setStart(boolean value){
@@ -173,12 +191,12 @@ public class LocationService extends Service implements
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Log.d(TAG,"onConnectionSuspended: " + i);
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
+        Log.d(TAG,"onConnectionFailed: " + connectionResult.toString());
     }
 
     @Override
@@ -202,7 +220,8 @@ public class LocationService extends Service implements
             float gpsAccuracy = location.getAccuracy(); //Get the estimated accuracy of this location, in meters.
             Log.d(TAG, "accuracy: " + gpsAccuracy);
 
-            if((location.getLatitude() != zero) && (location.getLongitude() != zero)){
+            //if location is not ZERO and tracking has started
+            if((location.getLatitude() != ZERO) && (location.getLongitude() != ZERO)){
                 if(started){
                     if(needFirstLocation){
                         needFirstLocation = false;
@@ -217,8 +236,20 @@ public class LocationService extends Service implements
                         Log.d(TAG, "distance: "+String.valueOf(distance));
                     }
 
-                    long overallPace = getOverallPace(calendar.getTime(), distance);
                     sendMessageToActivity("distance", String.valueOf(distance));
+
+                    //instant pace
+                    String instantPace = getInstantPace( calendar.getTime(), distance );
+                    if (!instantPace.isEmpty()){
+                        Log.d(TAG, "instant Pace: " + instantPace);
+                        sendMessageToActivity("instantPace", instantPace);
+                    }
+
+                    //Average pace
+                    String avgPace = getPace(startTime, calendar.getTime(), distance);
+                    Log.d(TAG, "avg Pace: " + avgPace);
+                    sendMessageToActivity("avgPace", avgPace);
+
                     gpxOutput.writeGPX(location, calendar.getTime());
                 }//else nothing if not started
             }
@@ -242,81 +273,62 @@ public class LocationService extends Service implements
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    public long getOverallPace(Date time, float currentDistance)
-    {
-        //TODO pass in time and distance and get pace, float or long?
-        //TODO broadcast or use listener to send pace to main activity and write to text view
-        long pace = (long) zero;
-        if(currentDistance == (float)zero){
-            pace = (long) zero;
+    private String getInstantPace(Date time, float currentDistance ){
+
+        String instantPace = "";
+
+        if (!isPaceArrayFull) {
+            //start filling array
+            for (int i = 0; i < instantPaceArray.length; i++) {
+                if (instantPaceArray[i] == null) {
+                    instantPaceArray[i] = new DistanceTimeObject(time, currentDistance);
+                    if(i == (instantPaceArray.length-1) ){ //array has been filled
+                        isPaceArrayFull = true;
+                        break;
+                    }else{
+                        return instantPace;
+                    }
+                }
+            }
         }else{
-            long timeDiffMillis = time.getTime() - startTime.getTime(); //in milliseconds
-            // 1000 millis / 1 sec
-            // 60000 millis / 1 min
-            long timeDiffMin = (timeDiffMillis / 1000)  / 60;
-            int seconds = ((int)timeDiffMillis / 1000) % 60;
-
-
-            long distanceTemp = (long)(currentDistance / 1000); //current distance (m) / [1000(m)/1(km)] = km
-
-            /*
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
-             */
+            //update pace array by shifting array left 1 and newest values are at the end
+            for (int j = 0; j < (instantPaceArray.length-1); j++) {
+                instantPaceArray[j] = instantPaceArray[j+1];
+            }
+            instantPaceArray[instantPaceArray.length-1] = new DistanceTimeObject(time, currentDistance);
         }
-        return pace;
+
+        //calculate pace from first and last values
+        DistanceTimeObject start = instantPaceArray[0];
+        DistanceTimeObject end = instantPaceArray[instantPaceArray.length-1];
+        float distanceDiff = end.distance - start.distance;
+        //Log.d(TAG, "instantPace distanceDiff: " + distanceDiff);
+        instantPace = getPace( start.time, end.time, distanceDiff);
+        //Log.d(TAG, "instantPace: " + instantPace);
+        return instantPace;
+    }
+
+    private String getPace(Date start, Date end, float currentDistance) {
+
+        Date pace = new Date();
+        pace.setTime((long) ZERO);
+
+        if(currentDistance == (float) ZERO){
+            pace.setTime((long) ZERO);
+        }else{
+            float timeDiffMillis = end.getTime() - start.getTime(); //in milliseconds
+            //Log.d(TAG, "timeDiffMin " + timeDiffMin);
+            float distanceKM = (float)(currentDistance / 1000); //current distance (m) / [1000(m)/1(km)] = km
+            //Log.d(TAG, "distanceKM " + distanceKM);
+            long paceMilliTime = (long)(timeDiffMillis / distanceKM); //long - truncate to lower whole number
+            //Log.d(TAG, "paceTime " + paceMilliTime);
+            pace.setTime(paceMilliTime);
+        }
+
+        String paceStr = paceFormat.format(pace);
+        return paceStr;
     }
 
 
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand");
-        super.onStartCommand(intent, flags, startId);
-        return START_STICKY;
-    }
-
- /*   private class LocationListener implements com.mobvoi.android.location.LocationListener {
-
-        public LocationListener(com.mobvoi.android.location.LocationListener ll) {
-            Log.d(TAG, "LocationListener constructor");
-            // Create the LocationRequest object
-            LocationRequest locationRequest = LocationRequest.create();
-            // Use high accuracy
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            // Set the update interval to 1 second
-            locationRequest.setInterval(1000);
-            // Set the fastest update interval to 0.5 seconds
-            locationRequest.setFastestInterval(900);
-            // Set the minimum displacement
-            locationRequest.setSmallestDisplacement(0);
-
-            LocationServices.FusedLocationApi.requestLocationUpdates(mApiClient, locationRequest, ll);
-
-            Location location = LocationServices.FusedLocationApi.getLastLocation(mApiClient);
-            Log.d(TAG," LAST location   Latitude:  " + String.valueOf(location.getLatitude()) +
-                    "  Longitude:  " + String.valueOf(location.getLongitude()));
-        }
-
-        @Override
-        public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged!!!!!!!: " + location);
-        }
-
-        //@Override
-        public void onProviderDisabled(String provider) {
-            Log.d(TAG, "onProviderDisabled: " + provider);
-        }
-
-        //@Override
-        public void onProviderEnabled(String provider) {
-            Log.d(TAG, "onProviderEnabled: " + provider);
-        }
-
-        //@Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            Log.d(TAG, "onStatusChanged: " + provider);
-        }
-
-    }*/
 }

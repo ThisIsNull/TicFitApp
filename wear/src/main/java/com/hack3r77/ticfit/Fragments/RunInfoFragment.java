@@ -18,10 +18,13 @@ import com.hack3r77.ticfit.R;
 
 public class RunInfoFragment extends Fragment {
 
-    TextView infoText;
-    final String TAG = "RunInfoFragment";
-    String distance = "0.0";
-    String heartRate = "0";
+    private TextView infoText;
+    private final String TAG = "RunInfoFragment";
+    private String distance;
+    private String heartRate;
+    private String heartRateZone;
+    private String avgPace;
+    private String instantPace;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,17 +34,39 @@ public class RunInfoFragment extends Fragment {
 
         infoText = (TextView) infoView.findViewById(R.id.infoText);
 
+        distance = "0.0";
+        heartRate = "0";
+        heartRateZone = "0";
+        avgPace = "00:00";
+        instantPace = "00:00";
+
         return infoView;
     }
 
+    /**
+     *
+     * @param pair
+     */
     public void setInfo(Pair<String,String> pair){
         Log.d(TAG, pair.first + ": " + pair.second);
         if(pair.first.equals("distance")){
             distance = pair.second;
         }else if(pair.first.equals("heartRate")){
             heartRate = pair.second;
+        }else if(pair.first.equals("heartRateZone")){
+            heartRateZone = pair.second;
+        }else if(pair.first.equals("avgPace")){
+            avgPace = pair.second;
+        }else if(pair.first.equals("instantPace")){
+            instantPace = pair.second;
         }
-        infoText.setText("distance: " + distance +
-                        "\nHR: " + heartRate);
+
+        if(!infoText.equals(null)) {
+            infoText.setText("distance(km): " + distance +
+                    "\nPace(min/km): " + instantPace +
+                    "\navg. Pace: " + avgPace +
+                    "\nHR(bpm): " + heartRate +
+                    "\nZone: " + heartRateZone);
+        }
     }
 }

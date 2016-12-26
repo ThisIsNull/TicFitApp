@@ -98,6 +98,15 @@ public class RunActivity extends Activity implements RunStartFragment.RunStartIn
             if(intent.hasExtra("heartRate")){
                 setInfoPair("heartRate", intent);
             }
+            if(intent.hasExtra("heartRateZone")){
+                setInfoPair("heartRateZone", intent);
+            }
+            if(intent.hasExtra("avgPace")){
+                setInfoPair("avgPace", intent);
+            }
+            if(intent.hasExtra("instantPace")){
+                setInfoPair("instantPace", intent);
+            }
         }
 
         private void setInfoPair(String key, Intent intent){
